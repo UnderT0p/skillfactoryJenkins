@@ -1,0 +1,118 @@
+---
+ - name: add user jenkins
+   hosts: jenkins_client
+   become: yes
+   tasks:
+   - name: add user jenkins on other machines
+     user: name=jenkins append=yes group=sudo state=present createhome=yes shell=/bin/bash
+   - name: set up authorized keys for the jenkins user
+     authorized_key: user=jenkins key="{{item}}"
+     with_file:
+        - /home/ansible/.ssh/id_rsa.pub
+   - name: allow 'jenkins' to have passwordless sudo
+     lineinfile:
+        dest: /etc/sudoers
+        line: 'jenkins ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+   - name: install gnupg 
+     apt:
+      pkg:
+       - gnupg
+ - name: install jenkins and ssh-keygen
+   hosts: jenkinsci
+   become: yes
+   tasks:
+   - name: Add the user
+     user:
+      name: jenkins
+      shell: /bin/bash
+      group: sudo
+      createhome: yes
+      generate_ssh_key: yes
+   - name: allow 'jenkins' to have passwordless sudo
+     lineinfile:
+        dest: /etc/sudoers
+        line: 'jenkins ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+   - name: set up authorized keys for the jenkins user
+     authorized_key: user=jenkins key="{{item}}"
+     with_file:
+        - /home/ansible/.ssh/id_rsa.pub  
+   - name: known_hosts
+     shell: ssh-keyscan -H prod >> /home/jenkins/.ssh/known_hosts
+   - name: owner
+     file:
+      path: /home/jenkins/.ssh/known_hosts
+      owner: jenkins
+      group: sudo
+      mode: '660'
+   - name: known_hosts
+     shell: ssh-keyscan -H stat >> /home/jenkins/.ssh/known_hosts
+   - name: owner
+     file:
+      path: /home/jenkins/.ssh/known_hosts
+      owner: jenkins
+      group: sudo
+      mode: '660'
+   - name: install gnupg at jenkinsci
+     apt:
+      update_cache: yes
+      pkg:
+       - gnupg
+       - default-jre
+       - default-jdk
+       - mc
+   - name: add jenkins apt-key
+     apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      state: present
+   - name: add jenkins APT repository
+     apt_repository:
+      repo: deb http://pkg.jenkins.io/debian-stable binary/
+      state: present
+      filename: jenkins
+   - name: install jenkins
+     apt:
+      name: jenkins
+      state: present
+   - name: copy pub key 
+     fetch:
+      src: /home/jenkins/.ssh/id_rsa.pub
+      dest: /tmp/
+ - name: install docker
+   hosts: jenkins_all
+   become: yes
+   tasks:
+   - name: set up authorized keys for the jenkins user
+     authorized_key: user=jenkins key="{{item}}"
+     with_file:
+        - /tmp/testjenkins1/home/jenkins/.ssh/id_rsa.pub
+   - name: install docker components
+     apt:
+      update_cache: yes
+      pkg:
+       - apt-transport-https
+       - ca-certificates
+       - curl
+       - software-properties-common
+       - lsb-release
+   - name: add docker APT key
+     apt_key:
+        id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+        url: https://download.docker.com/linux/debian/gpg
+   - name: add docker APT repository
+     apt_repository: 
+      repo: deb [arch=amd64] https://download.docker.com/linux/debian   buster stable
+      state: present
+   - name: apt install docker
+     apt:
+      pkg:
+       - docker-ce
+       - docker-ce-cli
+       - containerd.io  
+   - name: add jenkins docker group
+     user:
+      name: jenkins
+      groups: docker
+      append: yes
+   
