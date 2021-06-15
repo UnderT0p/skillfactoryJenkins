@@ -1,0 +1,15 @@
+pipeline {
+    agent any
+    stages {
+        stage('pull') {
+            steps {
+                sh 'ssh prod docker pull wordpress'
+            }
+        }
+        stage('run') {
+            steps {
+                sh 'ssh prod docker run --rm -it -d -p 80:80 wordpress'
+            }
+        }
+    }
+}
