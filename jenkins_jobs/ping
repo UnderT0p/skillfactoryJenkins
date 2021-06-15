@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('stat') {
+            steps {
+                sh 'ping -c 6 stat'
+            }
+        }
+        stage('prod') {
+            steps {
+                sh 'ping -c 6 prod'
+            }
+        }
+    }
+}
