@@ -1,0 +1,58 @@
+Вывод на консоль
+Started by user undert0p
+Obtained jenkins_jobs/wordpress_prod from git https://github.com/UnderT0p/skillfactoryJenkins
+Running in Durability level: MAX_SURVIVABILITY
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/wordpress_prod
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/UnderT0p/skillfactoryJenkins
+ > git init /var/lib/jenkins/workspace/wordpress_prod # timeout=10
+Fetching upstream changes from https://github.com/UnderT0p/skillfactoryJenkins
+ > git --version # timeout=10
+ > git --version # 'git version 2.20.1'
+ > git fetch --tags --force --progress -- https://github.com/UnderT0p/skillfactoryJenkins +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/UnderT0p/skillfactoryJenkins # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 44fe04d5cf7badcc5ea9092d9b583ed4bf980aa1 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 44fe04d5cf7badcc5ea9092d9b583ed4bf980aa1 # timeout=10
+Commit message: "Create reboot"
+First time build. Skipping changelog.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (pull)
+[Pipeline] sh
++ ssh prod docker pull wordpress
+Using default tag: latest
+latest: Pulling from library/wordpress
+Digest: sha256:e9da0d6c867249f364cd2292ea0dd01d7281e8dfbcc3e4b39b823f9a790b237b
+Status: Image is up to date for wordpress:latest
+docker.io/library/wordpress:latest
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (run)
+[Pipeline] sh
++ ssh prod docker run --rm -it -d -p 80:80 wordpress
+428d7c7f2c90a7e91e344c591a285ba93ec4500b740387485dde26efe4407540
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
