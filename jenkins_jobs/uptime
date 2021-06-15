@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('prod') {
+            steps {
+                sh 'uptime prod'
+            }
+        }
+        stage('stat') {
+            steps {
+                sh 'uptime stat'
+            }
+        }
+    }
+}
