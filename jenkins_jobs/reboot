@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('reboot_prod') {
+            steps {
+                sh '$reboot_prod'
+            }
+        }
+         stage('reboot_stat') {
+            steps {
+                sh '$reboot_stat'
+            }
+        }
+    }
+}
